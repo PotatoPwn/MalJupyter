@@ -1,0 +1,11 @@
+venv
+include
+lib
+lib64
+.idea
+pyvenv.cfg
+share
+etc
+bin
+Samples/*
+Defanged/*
