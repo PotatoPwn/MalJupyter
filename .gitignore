@@ -9,3 +9,4 @@ etc
 bin
 Samples/*
 Defanged/*
+/Tools/yarGen/dbs/
