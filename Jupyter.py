@@ -1,13 +1,22 @@
 import os
-import sys
 from shutil import copyfile
 import hashlib
 import pyminizip
-import string
 
 #Globals
 Samples = "Samples/"
 Defanged = "Defanged/"
+
+class Utils:
+
+    def maliciousConfidence(vtResults):
+        try:
+            disposition = [r["result"] for r in vtResults["results"]["scans"].values()]
+            malicious = list(filter(lambda d: d != None, disposition))
+            return round(len(malicious) / len(disposition) * 100, 2)
+        except KeyError:
+            return None
+
 
 
 class MalAnalyst:
@@ -15,6 +24,7 @@ class MalAnalyst:
     def __init__(self, sampleName):
         self.sampleName = sampleName
         self.newSampleName = ""
+
 
     @staticmethod
     def checkFolder(dir):
