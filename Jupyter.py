@@ -3,6 +3,7 @@ import sys
 from shutil import copyfile
 import hashlib
 import pyminizip
+import string
 
 #Globals
 Samples = "Samples/"
@@ -10,6 +11,10 @@ Defanged = "Defanged/"
 
 
 class MalAnalyst:
+
+    def __init__(self, sampleName):
+        self.sampleName = sampleName
+        self.newSampleName = ""
 
     @staticmethod
     def checkFolder(dir):
@@ -26,48 +31,54 @@ class MalAnalyst:
 
     @classmethod
     def createSubDirectoryForMalwareSample(cls, sampleName):
-        savedSampleDirName = Defanged + sampleName
-        os.mkdir(savedSampleDirName)
-        return savedSampleDirName
+        subDirHash = MalAnalyst.retrieveSha256HashSum(sampleName)
+        subDirLoc = Defanged + subDirHash
+        os.mkdir(subDirLoc)
+        return subDirLoc
 
 
     @classmethod
     def moveAndDefang(cls, sampleName):
         suffix = ".Defanged"
-        sha256sum = MalAnalyst.retrieveSha256HashSum(Samples + sampleName)
+        sha256sum = MalAnalyst.retrieveSha256HashSum(sampleName)
         defangedSampleName = sha256sum + suffix
-        defangedSampleDirectory = Defanged + defangedSampleName
-        liveSampleDirectory = Samples + sampleName
+        defangedSampleDirectory = Defanged + sha256sum + "/" + defangedSampleName
+        liveSampleDirectory = sampleName
         copyfile(liveSampleDirectory, defangedSampleDirectory)
         return defangedSampleDirectory # this returns the directory + defanged sample name...
 
 
-    def retrieveSha256HashSum(sample_name):
-        with open(sample_name, "rb") as f:
+    def retrieveSha256HashSum(sampleName):
+        with open(sampleName, "rb") as f:
             bytes = f.read()
             readable_hash = hashlib.sha256(bytes).hexdigest();
             return readable_hash
 
+    @classmethod
+    def retrieveStringsFromYarGen(cls, newFilePath, fileHash):
+        pathOfExtraction = newFilePath
+        yaraLocation = Defanged + fileHash + "/"
+        fileRule = yaraLocation + fileHash + ".yara"
+        print(fileHash)
+        os.system("python3 Tools/yarGen/yarGen.py -a Potatech -m " + pathOfExtraction + " -o " + fileRule)
+        return fileRule
 
     @classmethod
-    def retrieveStringsFromYarGen(cls, newSampleName):
-        sampleFile = Defanged + newSampleName + "/" + newSampleName
-        extractedStringsFile = Defanged + newSampleName + "/" + newSampleName + ".txt"
-        os.system("python3 Tools/yarGen/yarGen.py -a Potatech -m " + sampleFile + " -o " + extractedStringsFile) # Fix, not writing properly lol
-        return extractedStringsFile
-
-    @classmethod
-    def zipMaliciousSample(cls, newSampleName): # gonna try and use pyzipmini... :/
-        Samplename = Defanged + newSampleName + "/" + newSampleName
-        zipFileName = Defanged + newSampleName + "/" + newSampleName + ".zip"
+    def zipMaliciousSample(cls, newSampleName, fileHash, newFilePath): # gonna try and use pyzipmini... :/
+        zipFileName = newFilePath + "/" + fileHash + ".zip"
         password = "infected"
         compressLevel = 5
-        pyminizip.compress(Samplename, None, zipFileName, password, compressLevel)
+        pyminizip.compress(newSampleName, None, zipFileName, password, compressLevel)
+        os.system("rm " + newFilePath + "/*.Defanged")
         return zipFileName
 
+    @classmethod
+    def pullStringsEncodedAndUnicode(cls, sampleName, newFilePath):
+        encodedStrings = newFilePath + "/" + "ASCII_ENCODED.txt"
+        unicodeStrings = newFilePath + "/" + "UNICODE_ENCODED.txt"
+        os.system("strings -e b " + sampleName + " > " + encodedStrings)
+        os.system("strings -U h " + sampleName + " > " + unicodeStrings)
 
 
 
 
-MalAnalyst.retrieveStringsFromYarGen("8ce845ca0111835d9258432709d61ac932146c02f1baab8bbe605f7522ef1c4d")
-MalAnalyst.retrieveStringsFromYarGen("test.exe")
