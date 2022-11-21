@@ -1,5 +1,5 @@
 import os
-from shutil import copyfile
+from shutil import move
 import hashlib
 import pyminizip
 
@@ -54,7 +54,7 @@ class MalAnalyst:
         defangedSampleName = sha256sum + suffix
         defangedSampleDirectory = Defanged + sha256sum + "/" + defangedSampleName
         liveSampleDirectory = sampleName
-        copyfile(liveSampleDirectory, defangedSampleDirectory)
+        move(liveSampleDirectory, defangedSampleDirectory)
         return defangedSampleDirectory # this returns the directory + defanged sample name...
 
 
