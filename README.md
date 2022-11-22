@@ -1,4 +1,4 @@
-# MALJUPYTER # placeholder name
+# MALJUPYTER
 
 (This project was really built for linux due to its strings functions, but don't let this stop you)
 
@@ -29,11 +29,11 @@ cd MalJupyter
 ```
 
 ### Change into Virtual Environment
-#### Linux 
+##### Linux 
 ```
 source bin/activate
 ```
-#### Windows
+##### Windows
 ```
 script/activate.ps1
 ```
@@ -45,7 +45,7 @@ pip install -r requirements.txt
 
 ### Setup YaraGen
 ```
-python Tools/yarGen/yarGen.py --update
+python3 Tools/yarGen/yarGen.py --update
 ```
 
 ### Start Notebook
