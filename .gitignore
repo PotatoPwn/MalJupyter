@@ -10,3 +10,4 @@ bin
 Samples/*
 Defanged/*
 /Tools/yarGen/dbs/
+.ipynb_checkpoints
