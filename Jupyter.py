@@ -2,6 +2,9 @@ import os
 from shutil import move
 import hashlib
 import pyminizip
+from getpass import getpass
+import json
+import requests
 
 #Globals
 Samples = "Samples/"
@@ -45,6 +48,28 @@ class MalAnalyst:
         subDirLoc = Defanged + subDirHash
         os.mkdir(subDirLoc)
         return subDirLoc
+
+    @staticmethod
+    def downloadSamplesFromMalBazaar():
+        answer = input("Would you like to download some additional samples from malware bazaar?")
+        if answer == "yes" or "y":
+            malwareBazaarAPI = getpass("Whats your API Key?")
+            malwareBazaarTags = input("What Tags would you like to include:")
+            apiHeader = { 'API-KEY': malwareBazaarAPI }
+            querydata = {
+                'query': 'get_taginfo',
+                'tag': ''+malwareBazaarTags+'',
+                'limit': '20'
+            }
+            queryresponse = requests.post('https://mb-api.abuse.ch/api/v1', data=querydata, timeout=15)
+            shasums = json.load(queryresponse.text)
+            for shasum in shasums:
+                malware256shalist = shasum['sha256_hash']
+                print(shasum['sha256_hash'])
+
+
+        else:
+            print("Continuing to next instruction...")
 
 
     @classmethod
