@@ -2,9 +2,9 @@ import os
 from shutil import move
 import hashlib
 import pyminizip
-from getpass import getpass
 import json
 import requests
+import pyzipper
 
 #Globals
 Samples = "Samples/"
@@ -49,27 +49,53 @@ class MalAnalyst:
         os.mkdir(subDirLoc)
         return subDirLoc
 
+
+    @staticmethod
+    def querySamplesFromMalBazaar():
+        sumarray = []
+        malwareBazaarTags = input("What Tags would you like to include: ")
+        if len(malwareBazaarTags) == 0:
+            malwareBazaarTags = ""
+        print("searching for " + malwareBazaarTags)
+        querydata = {
+            'query': 'get_taginfo',
+            'tag': '' + malwareBazaarTags + '',
+            'limit': '3'
+        }
+        queryresponse = requests.post('https://mb-api.abuse.ch/api/v1', data=querydata, timeout=30)
+        query_json = json.loads(queryresponse.content)
+        if query_json and 'data' in query_json:
+            for shasum in query_json['data']:
+                sha256sum = shasum.get('sha256_hash')
+                sumarray.append(sha256sum)
+            return sumarray
+
+
     @staticmethod
     def downloadSamplesFromMalBazaar():
-        answer = input("Would you like to download some additional samples from malware bazaar?")
-        if answer == "yes" or "y":
-            malwareBazaarAPI = getpass("Whats your API Key?")
-            malwareBazaarTags = input("What Tags would you like to include:")
-            apiHeader = { 'API-KEY': malwareBazaarAPI }
-            querydata = {
-                'query': 'get_taginfo',
-                'tag': ''+malwareBazaarTags+'',
-                'limit': '20'
+        zipPassword = b'infected'
+        for sha256sum in MalAnalyst.querySamplesFromMalBazaar():
+            headers = {
+                "name": sha256sum
             }
-            queryresponse = requests.post('https://mb-api.abuse.ch/api/v1', data=querydata, timeout=15)
-            shasums = json.load(queryresponse.text)
-            for shasum in shasums:
-                malware256shalist = shasum['sha256_hash']
-                print(shasum['sha256_hash'])
+            queryData = {
+                'query': 'get_file',
+                'sha256_hash': sha256sum,
+            }
+            downloadFiles = requests.post('https://mb-api.abuse.ch/api/v1', data=queryData, timeout=60, headers=headers, allow_redirects=True)
+            if 'file_not_found' in downloadFiles.text:
+                print(sha256sum + " wasn't found")
+            else:
+                open(sha256sum + '.zip', 'wb').write(downloadFiles.content)
+                print(sha256sum + ".zip has been downloaded")
+                move(sha256sum + ".zip", Samples)
+                with pyzipper.AESZipFile(Samples + sha256sum + ".zip") as zf:
+                    zf.pwd = zipPassword
+                    my_secrets = zf.extractall(Samples)
+                    print(sha256sum + ".zip" + " has been extracted...")
+                    os.remove(Samples + sha256sum + ".zip")
+                    print(sha256sum + ".zip has been removed...")
 
-
-        else:
-            print("Continuing to next instruction...")
 
 
     @classmethod
