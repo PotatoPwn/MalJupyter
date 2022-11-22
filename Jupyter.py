@@ -121,7 +121,7 @@ class MalAnalyst:
         yaraLocation = Defanged + fileHash + "/"
         fileRule = yaraLocation + fileHash + ".yara"
         print(fileHash)
-        os.system("python3 Tools/yarGen/yarGen.py -a Potatech -m " + pathOfExtraction + " -o " + fileRule)
+        os.system("python3 Tools/yarGen/yarGen.py -m " + pathOfExtraction + " -o " + fileRule)
         return fileRule
 
     @classmethod
