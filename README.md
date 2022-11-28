@@ -33,10 +33,6 @@ cd MalJupyter
 ```
 source bin/activate
 ```
-##### Windows
-```
-script/activate.ps1
-```
 
 ### Install Requirements
 ```
@@ -46,6 +42,11 @@ pip install -r requirements.txt
 ### Setup YaraGen
 ```
 python3 Tools/yarGen/yarGen.py --update
+```
+
+### Move Yargen DB to correct location
+```
+mv ./db Tools/yarGen/
 ```
 
 ### Start Notebook

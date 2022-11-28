@@ -60,7 +60,7 @@ class MalAnalyst:
         querydata = {
             'query': 'get_taginfo',
             'tag': '' + malwareBazaarTags + '',
-            'limit': '3'
+            'limit': '10'
         }
         queryresponse = requests.post('https://mb-api.abuse.ch/api/v1', data=querydata, timeout=30)
         query_json = json.loads(queryresponse.content)
