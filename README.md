@@ -11,8 +11,6 @@ MaJupyter is a jupyter-notebook based program used to perform initial triage of 
 - Generates an automatic YaraRule (Cheers to ![Neo23x0](https://github.com/Neo23x0/yarGen) for YaraGen :D )
 - Changes name of malware to sha256 hashsum
 
-(Neo23x0 if you want me to take this down as I technically did just take your entire project and chucked it in mine, just shoot me an email and ill quickly take it down.
-
 ## Installation
 
 #### Clone Directory
